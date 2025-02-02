@@ -22,6 +22,8 @@ class GitHub:
     - Pull request handling
     - Release management
     """
+    GITHUB_ACCEPT = "application/vnd.github.v3+json"
+    GITHUB_API_VERSION = "2022-11-28"
 
     def __init__(self, token: str, owner: Optional[str] = None):
         """
@@ -223,8 +225,8 @@ class GitHub:
         
         # Set up headers with token if provided
         headers = {
-            "Accept": GITHUB_ACCEPT,
-            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            "Accept": self.GITHUB_ACCEPT,
+            "X-GitHub-Api-Version": self.GITHUB_API_VERSION,
 
         }
         if self.token:
