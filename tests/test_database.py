@@ -3,6 +3,13 @@ Tests for PyAderlee DatabaseManager class
 Version: 1.0
 Copyright (c) 2025 Rawasy
 Developer: Khaled Karman <k@rawasy.com>
+
+This module contains unit tests for the DatabaseManager class,
+covering all major functionality including:
+- Basic CRUD operations
+- Table management
+- Schema inspection
+- Connection handling
 """
 
 import unittest
@@ -11,8 +18,16 @@ from pathlib import Path
 from PyAderlee import DatabaseManager
 
 class TestDatabaseManager(unittest.TestCase):
+    """
+    Test suite for DatabaseManager class.
+    Tests all major database operations and ensures proper cleanup.
+    """
+
     def setUp(self):
-        """Set up test environment"""
+        """
+        Set up test environment before each test.
+        Creates a test database and initializes test table.
+        """
         self.db_path = Path("test.db")
         self.db = DatabaseManager(self.db_path)
         self.db.connect()
@@ -31,7 +46,13 @@ class TestDatabaseManager(unittest.TestCase):
             os.remove(self.db_path)
     
     def test_insert_and_select(self):
-        """Test data insertion and selection"""
+        """
+        Test data insertion and selection operations.
+        Verifies that:
+        - Data can be inserted correctly
+        - Selected data matches inserted data
+        - Column selection works properly
+        """
         test_data = {"name": "John", "age": 30}
         self.db.insert("test_table", test_data)
         

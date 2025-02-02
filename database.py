@@ -5,6 +5,8 @@ Copyright (c) 2025 Rawasy
 Developer: Khaled Karman <k@rawasy.com>
 
 Database management module for PyAderlee.
+This module provides a high-level interface for SQLite database operations
+with support for table management, CRUD operations, and schema inspection.
 """
 
 import sqlite3
@@ -13,14 +15,23 @@ from pathlib import Path
 
 class DatabaseManager:
     """
-    A class to handle SQLite database operations
+    A class to handle SQLite database operations with built-in support for
+    common database management tasks.
+
+    Features:
+    - CRUD operations (Create, Read, Update, Delete)
+    - Table management (create, drop)
+    - Schema inspection (tables, columns, indexes)
+    - Foreign key and trigger management
+    - Context manager support for automatic connection handling
     """
     def __init__(self, db_path: Union[str, Path]):
         """
-        Initialize database connection
-        
+        Initialize database manager with a path to SQLite database.
+        Creates the database file if it doesn't exist.
+
         Args:
-            db_path: Path to SQLite database file
+            db_path: Path to SQLite database file (str or Path object)
         """
         self.db_path = Path(db_path)
         self.connection = None
@@ -40,14 +51,19 @@ class DatabaseManager:
     
     def execute(self, query: str, params: tuple = ()) -> Optional[List[tuple]]:
         """
-        Execute SQL query
-        
+        Execute an SQL query with optional parameters.
+        Automatically handles connection and transaction management.
+
         Args:
-            query: SQL query string
-            params: Query parameters
-            
+            query: SQL query string to execute
+            params: Query parameters for parameterized queries
+
         Returns:
-            Query results if SELECT, None otherwise
+            List of results for SELECT queries, None for other queries
+
+        Example:
+            >>> db.execute("SELECT * FROM users WHERE age > ?", (25,))
+            [(1, "John", 30), (2, "Jane", 28)]
         """
         if not self.connection:
             self.connect()
@@ -144,10 +160,31 @@ class DatabaseManager:
         return self.execute("SELECT name FROM sqlite_master WHERE type='table'")
     
     def show_columns(self, table_name: str) -> List[str]:
-        """Show all columns in a table"""
-        # return self.execute(f"PRAGMA table_info({table_name})")
-        return self.execute(f"SELECT sql FROM sqlite_schema ")
-        # return self.execute(f"SELECT name FROM PRAGMA_TABLE_INFO()")
+        """
+        Show all columns in a table with their definitions.
+        Returns the complete SQL schema information for the table.
+
+        Args:
+            table_name: Name of the table to inspect
+
+        Returns:
+            List of tuples containing schema information
+
+        Example:
+            >>> db.create_table("users", {
+            ...     "id": "INTEGER PRIMARY KEY",
+            ...     "name": "TEXT",
+            ...     "age": "INTEGER"
+            ... })
+            >>> db.show_columns("users")
+            [('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER) STRICT',)]
+
+        Note:
+            This method returns the raw SQL schema definition.
+            For a more structured view of columns, use show_table_structure().
+        """
+        ret = self.execute(f"SELECT sql FROM sqlite_schema WHERE name='{table_name}'")
+        return ret[0][0]
     
     def show_table_schema(self, table_name: str) -> List[str]:
         """Show table schema"""
