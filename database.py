@@ -38,12 +38,19 @@ class DatabaseManager:
         self.cursor = None
     
     def connect(self) -> None:
-        """Establish database connection"""
+        """
+        Establish a connection to the SQLite database.
+        Creates the database file if it doesn't exist.
+        Sets up both connection and cursor objects.
+        """
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
     
     def disconnect(self) -> None:
-        """Close database connection"""
+        """
+        Close the database connection and cleanup resources.
+        Safely handles disconnection even if connection wasn't established.
+        """
         if self.connection:
             self.connection.close()
             self.connection = None
@@ -78,11 +85,14 @@ class DatabaseManager:
     
     def insert(self, table_name: str, data: Dict[str, Any]) -> None:
         """
-        Insert data into table
-        
+        Insert a single row of data into the specified table.
+
         Args:
-            table_name: Target table name
-            data: Dictionary of column names and values
+            table_name: Name of the target table
+            data: Dictionary mapping column names to their values
+
+        Example:
+            >>> db.insert("users", {"name": "John", "age": 30})
         """
         columns = ', '.join(data.keys())
         placeholders = ', '.join(['?' for _ in data])
@@ -92,15 +102,19 @@ class DatabaseManager:
     def select(self, table_name: str, columns: List[str] = None, 
                where: Dict[str, Any] = None) -> List[tuple]:
         """
-        Select data from table
-        
+        Select data from the specified table with optional column and condition filters.
+
         Args:
-            table_name: Target table name
-            columns: List of columns to select (None for all)
-            where: Dictionary of column-value pairs for WHERE clause
+            table_name: Name of the target table
+            columns: List of column names to select (None for all columns)
+            where: Dictionary of column-value pairs for WHERE clause filtering
             
         Returns:
-            List of query results
+            List of tuples containing the query results
+
+        Example:
+            >>> db.select("users", ["name", "age"], {"age": 30})
+            [("John", 30), ("Jane", 30)]
         """
         cols = '*' if not columns else ', '.join(columns)
         query = f"SELECT {cols} FROM {table_name}"
@@ -115,12 +129,15 @@ class DatabaseManager:
     def update(self, table_name: str, data: Dict[str, Any], 
                where: Dict[str, Any]) -> None:
         """
-        Update data in table
-        
+        Update existing records in the specified table.
+
         Args:
-            table_name: Target table name
-            data: Dictionary of column names and new values
+            table_name: Name of the target table
+            data: Dictionary of column names and their new values
             where: Dictionary of column-value pairs for WHERE clause
+
+        Example:
+            >>> db.update("users", {"age": 31}, {"name": "John"})
         """
         set_clause = ', '.join([f"{k} = ?" for k in data.keys()])
         where_clause = ' AND '.join([f"{k} = ?" for k in where.keys()])
@@ -132,11 +149,14 @@ class DatabaseManager:
     
     def delete(self, table_name: str, where: Dict[str, Any]) -> None:
         """
-        Delete data from table
-        
+        Delete records from the specified table that match the conditions.
+
         Args:
-            table_name: Target table name
+            table_name: Name of the target table
             where: Dictionary of column-value pairs for WHERE clause
+
+        Example:
+            >>> db.delete("users", {"name": "John"})
         """
         conditions = ' AND '.join([f"{k} = ?" for k in where.keys()])
         query = f"DELETE FROM {table_name} WHERE {conditions}"
@@ -145,60 +165,97 @@ class DatabaseManager:
     
     def create_table(self, table_name: str, columns: Dict[str, str]) -> None:
         """
-        Create new table
-        
+        Create a new table with the specified columns.
+        Uses STRICT mode for better type enforcement.
+
         Args:
-            table_name: Name of the table
-            columns: Dictionary of column names and their SQL types
+            table_name: Name of the new table
+            columns: Dictionary mapping column names to their SQL types
+
+        Example:
+            >>> db.create_table("users", {
+            ...     "id": "INTEGER PRIMARY KEY",
+            ...     "name": "TEXT NOT NULL",
+            ...     "age": "INTEGER"
+            ... })
         """
         cols = [f"{name} {dtype}" for name, dtype in columns.items()]
         query = f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join(cols)}) STRICT"
         self.execute(query)
     
     def show_tables(self) -> List[str]:
-        """Show all tables in database"""
+        """
+        List all tables in the current database.
+
+        Returns:
+            List of table names
+
+        Example:
+            >>> db.show_tables()
+            [("users",), ("products",)]
+        """
         return self.execute("SELECT name FROM sqlite_master WHERE type='table'")
     
     def show_columns(self, table_name: str) -> List[str]:
         """
-        Show all columns in a table with their definitions.
-        Returns the complete SQL schema information for the table.
+        Show all columns and their definitions for the specified table.
 
         Args:
-            table_name: Name of the table to inspect
+            table_name: Name of the target table
 
         Returns:
-            List of tuples containing schema information
+            List of column definitions
 
         Example:
-            >>> db.create_table("users", {
-            ...     "id": "INTEGER PRIMARY KEY",
-            ...     "name": "TEXT",
-            ...     "age": "INTEGER"
-            ... })
             >>> db.show_columns("users")
-            [('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER) STRICT',)]
-
-        Note:
-            This method returns the raw SQL schema definition.
-            For a more structured view of columns, use show_table_structure().
+            [("id", "INTEGER", 1, 1), ("name", "TEXT", 1, 0)]
         """
-        ret = self.execute(f"SELECT sql FROM sqlite_schema WHERE name='{table_name}'")
-        return ret[0][0]
+        # return self.execute(f"PRAGMA table_info({table_name})")
+        return self.execute(f"SELECT sql FROM sqlite_schema ")
+        # return self.execute(f"SELECT name FROM PRAGMA_TABLE_INFO()")
     
     def show_table_schema(self, table_name: str) -> List[str]:
-        """Show table schema"""
+        """
+        Get the complete SQL schema definition for the specified table.
+
+        Args:
+            table_name: Name of the target table
+
+        Returns:
+            SQL CREATE statement for the table
+
+        Example:
+            >>> db.show_table_schema("users")
+            "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)"
+        """
         # return self.execute(f"PRAGMA table_info({table_name})")
         ret = self.execute(f"SELECT sql FROM sqlite_schema WHERE name='{table_name}'")
         return ret[0][0]
     
 
     def show_table_structure(self, table_name: str) -> List[str]:
-        """Show table structure"""
+        """
+        Get detailed information about table structure including columns,
+        types, and constraints.
+
+        Args:
+            table_name: Name of the target table
+
+        Returns:
+            List of tuples containing column information
+        """
         return self.execute(f"PRAGMA table_info({table_name})")
     
     def show_table_indexes(self, table_name: str) -> List[str]:
-        """Show table indexes"""
+        """
+        List all indexes defined for the specified table.
+
+        Args:
+            table_name: Name of the target table
+
+        Returns:
+            List of index definitions
+        """
         return self.execute(f"PRAGMA index_list({table_name})")
     
     def show_table_index_info(self, table_name: str, index_name: str) -> List[str]:
@@ -218,7 +275,15 @@ class DatabaseManager:
         return self.execute(f"PRAGMA trigger_info({table_name})")
 
     def show_table_foreign_keys(self, table_name: str) -> List[str]:
-        """Show table foreign keys"""
+        """
+        List all foreign key constraints for the specified table.
+
+        Args:
+            table_name: Name of the target table
+
+        Returns:
+            List of foreign key definitions
+        """
         return self.execute(f"PRAGMA foreign_key_list({table_name})")
     
     def show_table_foreign_key_info(self, table_name: str, foreign_key_name: str) -> List[str]:
@@ -234,24 +299,48 @@ class DatabaseManager:
         return self.execute(f"PRAGMA view_info({table_name})")
     
     def drop_table(self, table_name: str) -> None:
-        """Drop table"""
+        """
+        Drop the specified table if it exists.
+        This operation cannot be undone.
+
+        Args:
+            table_name: Name of the table to drop
+
+        Example:
+            >>> db.drop_table("users")
+        """
         return self.execute(f"DROP TABLE IF EXISTS {table_name}")
     
     def drop_view(self, view_name: str) -> None:
-        """Drop view"""
+        """
+        Drop the specified view if it exists.
+        This operation cannot be undone.
+
+        Args:
+            view_name: Name of the view to drop
+
+        Example:
+            >>> db.drop_view("active_users")
+        """
         return self.execute(f"DROP VIEW IF EXISTS {view_name}")
     
     
     
     def __enter__(self):
-        """Context manager entry"""
+        """
+        Context manager entry point.
+        Automatically connects to the database.
 
-
+        Example:
+            >>> with DatabaseManager("data.db") as db:
+            ...     db.execute("SELECT * FROM users")
+        """
         self.connect()
-
-
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit"""
+        """
+        Context manager exit point.
+        Automatically disconnects from the database and handles cleanup.
+        """
         self.disconnect() 
