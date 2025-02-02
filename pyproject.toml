@@ -26,6 +26,7 @@ classifiers = [
 keywords = ["database", "sqlite", "file handling", "data processing"]
 dependencies = [
     "pathlib>=1.0",
+    "requests>=2.25.0",
 ]
 requires-python = ">=3.8"
 
