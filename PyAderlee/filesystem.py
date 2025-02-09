@@ -11,7 +11,7 @@ import os
 from typing import Union, List, Dict, Any
 from pathlib import Path
 from .encoder import Encoder
-
+import subprocess
 class FileSystem:
     """
     A class to handle file system operations with built-in support for
@@ -77,3 +77,12 @@ class FileSystem:
     def exists(self, filepath: Union[str, Path]) -> bool:
         """Check if file exists"""
         return (self.base_path / Path(filepath)).exists()
+    
+    def exec(self, command: str) -> str:
+        """Execute a command and return the output"""
+        try:
+            result = subprocess.getoutput(command)
+        except Exception as e:
+            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', errors='ignore')
+            result = result.stdout
+        return result.strip()

@@ -11,6 +11,7 @@ from .filesystem import FileSystem
 from .encoder import Encoder
 from .database import DatabaseManager
 from .github import GitHub
+from .MySql import MySQLManager
 
 __version__ = "1.0"
-__all__ = ['FileSystem', 'Encoder', 'DatabaseManager', 'GitHub'] 
+__all__ = ['FileSystem', 'Encoder', 'DatabaseManager', 'GitHub', 'MySQLManager'] 

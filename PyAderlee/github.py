@@ -214,6 +214,38 @@ class GitHub:
         response.raise_for_status()
         return response.json()
     
+    def list_org_repos(self, org_name: str) -> list:
+        """
+        List all repositories from a GitHub organization.
+        
+        Args:
+            org_name: Name of the GitHub organization
+        """
+        import requests, json, os
+        headers = {
+            "Accept": self.GITHUB_ACCEPT,
+            "X-GitHub-Api-Version": self.GITHUB_API_VERSION,
+        }
+        if self.token:
+            headers["Authorization"] = f"token {self.token}"
+        
+        page = 1
+        repos_len = 0
+        all_repos = []
+        while repos_len==0 or repos_len==100:
+            api_url = f"https://api.github.com/orgs/{org_name}/repos?per_page=100&page={page}"
+            response = requests.get(api_url, headers=headers)
+            if response.status_code != 200:
+                print(f"Error accessing organization: {response.status_code}")
+                return
+            repos = json.loads(response.text)
+            repos_len = len(repos)
+            if repos_len==0:
+                break
+            all_repos.extend(repos)
+            page += 1
+        return all_repos
+
     def clone_org_repos(self, org_name: str, output_dir: str = ".") -> None:
         """
         Clone all repositories from a GitHub organization.
@@ -222,41 +254,15 @@ class GitHub:
             org_name: Name of the GitHub organization
             output_dir: Directory to clone repositories into (default: current directory)
         """
-        
-        # Set up headers with token if provided
-        headers = {
-            "Accept": self.GITHUB_ACCEPT,
-            "X-GitHub-Api-Version": self.GITHUB_API_VERSION,
-
-        }
-        if self.token:
-            headers["Authorization"] = f"token {self.token}"
-        
-        # API endpoint for org repos
-        page = 1
-        api_url = f"https://api.github.com/orgs/{org_name}/repos?per_page=100&page={page}"
-        
-        # Get list of repos
-        response = requests.get(api_url, headers=headers)
-        if response.status_code != 200:
-            print(f"Error accessing organization: {response.status_code}")
-            return
-            
-        repos = json.loads(response.text)
-        repos_len = len(repos)
-
-        # Clone each repository
-        print(f"Cloning repositories from {org_name}... Total:", len(repos))
-        for repo in repos:
+        print(f"Cloning repositories from {org_name}... Total:", end="\t", flush=True)
+        all_repos = self.list_org_repos(org_name)
+        print(len(all_repos), flush=True)
+        for repo in all_repos:
             repo_name = repo["name"]
             clone_url = repo["clone_url"]
-            
-            # Use auth in clone URL if token provided
             if self.token:
                 clone_url = clone_url.replace("https://", f"https://{self.token}@")
-                
             target_dir = os.path.join(output_dir, repo_name)
-            
             if os.path.exists(target_dir):
                 # print(f"Repository {repo_name} already exists, skipping...")
                 continue
@@ -264,26 +270,5 @@ class GitHub:
             command = f"git clone {repo['git_url']} {target_dir}"
             print(repo['name'])
             os.system(f"git clone {clone_url} {target_dir}")
-        while repos_len == 100:
-            page += 1
-            api_url = f"https://api.github.com/orgs/{org_name}/repos?per_page=100&page={page}"
-            response = requests.get(api_url, headers=headers)
-            repos = json.loads(response.text)
-            repos_len = len(repos)
-            print(f"Cloning repositories from {org_name}... Total:", len(repos))
-            for repo in repos:
-                repo_name = repo["name"]
-                clone_url = repo["clone_url"]
-                # Use auth in clone URL if token provided
-                if self.token:
-                    clone_url = clone_url.replace("https://", f"https://{self.token}@")
-                    
-                target_dir = os.path.join(output_dir, repo_name)
-                
-                if os.path.exists(target_dir):
-                    # print(f"Repository {repo_name} already exists, skipping...")
-                    continue
-                command = f"git clone {clone_url} {target_dir}"
-                command = f"git clone {repo['git_url']} {target_dir}"
-                print(repo['name'])
-                os.system(f"git clone {clone_url} {target_dir}")
+        
+        return len(all_repos)
