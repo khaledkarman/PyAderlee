@@ -45,9 +45,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/rawasy/PyAderlee"
-Documentation = "https://github.com/rawasy/PyAderlee#readme"
-Issues = "https://github.com/rawasy/PyAderlee/issues"
+Homepage = "https://github.com/rwasy/PyAderlee"
+Documentation = "https://github.com/rwasy/PyAderlee#readme"
+Issues = "https://github.com/rwasy/PyAderlee/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["PyAderlee"]

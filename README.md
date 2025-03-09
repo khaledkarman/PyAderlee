@@ -18,8 +18,11 @@ Developer: Khaled Karman <k@rawasy.com>
 ## Installation
 
 ```bash
+# First update pip
+python.exe -m pip install --upgrade pip
+
 # Local Installation
-git clone https://github.com/rawasy/PyAderlee.git
+git clone https://github.com/rwasy/PyAderlee.git
 cd PyAderlee
 python setup.py install
 # or

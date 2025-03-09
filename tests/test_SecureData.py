@@ -1,4 +1,5 @@
 import unittest
+from PyAderlee import SecureData
 
 # Assuming SecureData class is defined above or imported.
 # from secure_data_encoder import SecureData
