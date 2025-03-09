@@ -14,9 +14,15 @@ load_dotenv()
 class Environment:
     '''
     Environment class for decoding environment variables
-    Version: 1.0
-    Copyright (c) 2025 Rawasy
-    Developer: Khaled Karman <k@rawasy.com>
+
+    Features:
+        - Decode environment variables
+        - Encode environment variables
+        - Check if environment variables are encoded
+        - Decode environment variables
+        - Encode environment variables
+        - Check if environment variables are encoded
+
     Usage:
         env = Environment()
         print(env.decodeEnv("YOUR_ENV_KEY"))

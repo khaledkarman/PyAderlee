@@ -12,9 +12,15 @@ import base64
 class SecureData:
     '''
     SecureData class for encoding and decoding data
-    Version: 1.0
-    Copyright (c) 2025 Rawasy
-    Developer: Khaled Karman <k@rawasy.com>
+    
+    Features:
+        - Encode data
+        - Decode data
+        - Check if data is encoded
+        - Encode data
+        - Decode data
+        - Check if data is encoded
+
     Usage:
         encoder = SecureData(secret_key1, secret_key2, secret_key3)
         encoded_message = encoder.encode(message)
