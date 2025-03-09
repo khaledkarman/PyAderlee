@@ -34,6 +34,8 @@ class Environment:
         return self.decodeEnv(env_key)
     def decodeEnv(self, env_key: str):
         env_value = os.getenv(env_key)
+        if env_value == "":
+            return ""
         if env_value:
             secret_keys = []
             if self.aderlee_security:
