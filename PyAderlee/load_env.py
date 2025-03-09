@@ -29,6 +29,9 @@ class Environment:
     '''
     def __init__(self):
         self.aderlee_security = os.getenv("ADERLEE_SECURITY")
+
+    def readEnv(self, env_key: str):
+        return self.decodeEnv(env_key)
     def decodeEnv(self, env_key: str):
         env_value = os.getenv(env_key)
         if env_value:
