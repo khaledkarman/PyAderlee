@@ -44,3 +44,5 @@ build/
 # Misc
 .DS_Store
 .env
+tes.ipynb
+info.md

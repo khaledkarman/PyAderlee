@@ -12,6 +12,7 @@ from .encoder import Encoder
 from .database import DatabaseManager
 from .github import GitHub
 from .MySql import MySQLManager
+from .SecureData import SecureData
 
 __version__ = "1.0"
-__all__ = ['FileSystem', 'Encoder', 'DatabaseManager', 'GitHub', 'MySQLManager'] 
+__all__ = ['FileSystem', 'Encoder', 'DatabaseManager', 'GitHub', 'MySQLManager', 'SecureData'] 
