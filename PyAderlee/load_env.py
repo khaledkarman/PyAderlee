@@ -8,7 +8,7 @@ Environment class for decoding environment variables
 """
 from dotenv import load_dotenv
 import os
-from .SecureData import SecureData
+from .secure_data import SecureData
 load_dotenv()
 
 class Environment:

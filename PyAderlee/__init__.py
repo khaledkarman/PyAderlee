@@ -12,8 +12,8 @@ from .encoder import Encoder
 from .database import DatabaseManager
 from .github import GitHub
 from .MySql import MySQLManager
-from .SecureData import SecureData
-from .Environment import Environment
+from .secure_data import SecureData
+from .load_env import Environment
 
 __version__ = "1.0"
 __all__ = ['FileSystem', 'Encoder', 'DatabaseManager', 'GitHub', 'MySQLManager', 'SecureData', 'Environment'] 
