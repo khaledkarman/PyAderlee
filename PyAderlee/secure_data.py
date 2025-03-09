@@ -57,6 +57,8 @@ class SecureData:
         :param plaintext: The string to encode.
         :return: The encoded string in hexadecimal format.
         """
+        if plaintext == "":
+            return ""
         if not isinstance(plaintext, str):
             raise ValueError("Input plaintext must be a string.")
         
