@@ -1,7 +1,27 @@
+"""
+PyAderlee - Python Data Processing Library
+Version: 1.0
+Copyright (c) 2025 Rawasy
+Developer: Khaled Karman <k@rawasy.com>
+
+SecureData class for encoding and decoding data
+"""
 import hashlib
 import base64
 
 class SecureData:
+    '''
+    SecureData class for encoding and decoding data
+    Version: 1.0
+    Copyright (c) 2025 Rawasy
+    Developer: Khaled Karman <k@rawasy.com>
+    Usage:
+        encoder = SecureData(secret_key1, secret_key2, secret_key3)
+        encoded_message = encoder.encode(message)
+        decoded_message = encoder.decode(encoded_message)
+        if encoder.is_encoded(encoded_message):
+            print("The message appears to be encoded by this scheme.")
+    '''
     def __init__(self, *secret_keys):
         """
         Initialize the SecureData with one or more secret keys.
